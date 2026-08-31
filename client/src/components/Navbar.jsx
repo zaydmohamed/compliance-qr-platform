@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, User, Bell, QrCode, Shield, Building2, Menu, X } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 export const Navbar = ({ variant = 'dashboard', title, onToggleSidebar }) => {
   const { user, logout, isPlatformAdmin, platformSettings } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -18,14 +19,25 @@ export const Navbar = ({ variant = 'dashboard', title, onToggleSidebar }) => {
     : user?.organization?.logo;
 
   if (variant === 'public') {
+    const desktopLinkClass = ({ isActive }) =>
+      isActive
+        ? 'text-[#0086FF] font-bold border-b-2 border-[#0086FF] pb-1 transition-all'
+        : 'text-[#5A5856] hover:text-[#2C3925] font-semibold transition-colors pb-1 border-b-2 border-transparent';
+
+    const mobileLinkClass = ({ isActive }) =>
+      isActive
+        ? 'block px-3 py-2 rounded-xl text-xs font-bold text-[#0086FF] bg-blue-50/70 border border-blue-100'
+        : 'block px-3 py-2 rounded-xl text-xs font-semibold text-[#2F2E2D] hover:bg-slate-50';
+
     return (
       <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 min-w-0">
-            {platformSettings?.logo ? (
+            {platformSettings?.logo && !imgError ? (
               <img
                 src={platformSettings.logo}
                 alt=""
+                onError={() => setImgError(true)}
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white object-contain p-1 border border-slate-200 shadow-md flex-shrink-0"
               />
             ) : (
@@ -46,10 +58,10 @@ export const Navbar = ({ variant = 'dashboard', title, onToggleSidebar }) => {
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-[#5A5856]">
-            <Link to="/" className="hover:text-[#2C3925] transition-colors">Home</Link>
-            <Link to="/about" className="hover:text-[#2C3925] transition-colors">About System</Link>
-            <Link to="/contact" className="hover:text-[#2C3925] transition-colors">Contact</Link>
+          <nav className="hidden md:flex items-center gap-8 text-xs">
+            <NavLink to="/" end className={desktopLinkClass}>Home</NavLink>
+            <NavLink to="/about" className={desktopLinkClass}>About System</NavLink>
+            <NavLink to="/contact" className={desktopLinkClass}>Contact</NavLink>
           </nav>
 
           {/* Right Action / Mobile Hamburger */}
@@ -85,27 +97,28 @@ export const Navbar = ({ variant = 'dashboard', title, onToggleSidebar }) => {
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-slate-100 bg-white/95 backdrop-blur-md px-4 py-4 space-y-2 shadow-lg animate-in slide-in-from-top-2">
-            <Link
+            <NavLink
               to="/"
+              end
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-xl text-xs font-semibold text-[#2F2E2D] hover:bg-slate-50"
+              className={mobileLinkClass}
             >
               Home
-            </Link>
-            <Link
+            </NavLink>
+            <NavLink
               to="/about"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-xl text-xs font-semibold text-[#2F2E2D] hover:bg-slate-50"
+              className={mobileLinkClass}
             >
               About System
-            </Link>
-            <Link
+            </NavLink>
+            <NavLink
               to="/contact"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-xl text-xs font-semibold text-[#2F2E2D] hover:bg-slate-50"
+              className={mobileLinkClass}
             >
               Contact Support
-            </Link>
+            </NavLink>
           </div>
         )}
       </header>
