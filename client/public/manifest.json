@@ -1,0 +1,15 @@
+{
+  "short_name": "ComplianceQR",
+  "name": "Compliance QR Code Platform",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#F8F9FA",
+  "theme_color": "#2C3925",
+  "display": "standalone"
+}

@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans bg-[#F8F9FA] text-[#2F2E2D] antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-[#2F2E2D] font-bold tracking-tight;
+  }
+}
+
+/* Custom modern scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F3F5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C7CBD1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2C3925;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Subtle glowing card */
+.glow-primary {
+  box-shadow: 0 0 25px -5px rgba(44, 57, 37, 0.2);
+}
+
+.glow-accent {
+  box-shadow: 0 0 25px -5px rgba(0, 134, 255, 0.25);
+}
+
+/* Dedicated Print Layout */
+@media print {
+  aside,
+  nav,
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+
+  body, html, #root {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .printable-qr-poster {
+    display: block !important;
+    width: 100% !important;
+    max-width: 520px !important;
+    margin: 40px auto !important;
+    padding: 32px !important;
+    border: 3px solid #2C3925 !important;
+    border-radius: 24px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+  }
+}
+
