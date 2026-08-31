@@ -1,8 +1,9 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import * as orgService from '../services/organization.service.js';
+import { uploadImageToCloud } from '../services/cloudinary.service.js';
 
 export const createOrganization = asyncHandler(async (req, res) => {
-  const logoPath = req.file ? `/uploads/logos/${req.file.filename}` : '';
+  const logoPath = req.file ? await uploadImageToCloud(req.file.buffer, req.file.mimetype, 'compliance-qr/organizations') : '';
   const organization = await orgService.createOrganization(req.body, logoPath, req.user);
 
   res.status(201).json({
@@ -13,7 +14,7 @@ export const createOrganization = asyncHandler(async (req, res) => {
 });
 
 export const createCompleteOrganization = asyncHandler(async (req, res) => {
-  const logoPath = req.file ? `/uploads/logos/${req.file.filename}` : '';
+  const logoPath = req.file ? await uploadImageToCloud(req.file.buffer, req.file.mimetype, 'compliance-qr/organizations') : '';
   
   // Parse JSON payloads if sent as multipart form
   let orgData = req.body.orgData ? JSON.parse(req.body.orgData) : req.body;
@@ -48,7 +49,7 @@ export const getOrganizationById = asyncHandler(async (req, res) => {
 });
 
 export const updateOrganization = asyncHandler(async (req, res) => {
-  const logoPath = req.file ? `/uploads/logos/${req.file.filename}` : null;
+  const logoPath = req.file ? await uploadImageToCloud(req.file.buffer, req.file.mimetype, 'compliance-qr/organizations') : null;
   const organization = await orgService.updateOrganization(req.params.id, req.body, logoPath, req.user);
 
   res.status(200).json({

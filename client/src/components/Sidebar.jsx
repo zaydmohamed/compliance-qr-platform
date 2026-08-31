@@ -62,6 +62,7 @@ export const Sidebar = ({ isOpen = false, onClose }) => {
             <img
               src={currentLogo}
               alt=""
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
               className="w-9 h-9 rounded-xl bg-white object-contain p-1 border border-white/20 shadow-md"
             />
           ) : (

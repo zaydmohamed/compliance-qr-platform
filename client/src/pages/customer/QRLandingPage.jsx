@@ -60,6 +60,7 @@ export const QRLandingPage = () => {
           <img
             src={organization.logo}
             alt={organization.name}
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
             className="w-20 h-20 object-contain mx-auto rounded-2xl p-1 bg-slate-50 border border-slate-200 shadow-sm"
           />
         ) : (

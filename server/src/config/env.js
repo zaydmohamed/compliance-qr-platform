@@ -34,4 +34,7 @@ export const ENV = {
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'Admin@123456',
   ADMIN_FULLNAME: process.env.ADMIN_FULLNAME || 'Platform Admin',
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '',
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
 };

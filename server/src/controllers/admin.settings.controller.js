@@ -1,6 +1,7 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { PlatformSettings } from '../models/PlatformSettings.js';
 import { logAudit } from '../services/audit.service.js';
+import { uploadImageToCloud } from '../services/cloudinary.service.js';
 
 export const getSettings = asyncHandler(async (req, res) => {
   let settings = await PlatformSettings.findOne();
@@ -36,7 +37,7 @@ export const updateSettings = asyncHandler(async (req, res) => {
   const updateData = { ...req.body };
 
   if (req.file) {
-    updateData.logo = `/uploads/logos/${req.file.filename}`;
+    updateData.logo = await uploadImageToCloud(req.file.buffer, req.file.mimetype, 'compliance-qr/platform');
   }
 
   if (!settings) {
