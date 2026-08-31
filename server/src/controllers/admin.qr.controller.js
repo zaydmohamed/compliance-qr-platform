@@ -22,8 +22,12 @@ export const getOrgQr = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'QR code not found for this organization');
   }
 
-  const dataUrl = await qrService.generateQrDataUrl(qr.publicToken);
-  const publicUrl = qrService.buildPublicQrUrl(qr.publicToken);
+  const host = req.get('x-forwarded-host') || req.get('host');
+  const proto = req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http');
+  const dynamicOrigin = host ? `${proto}://${host}` : null;
+
+  const dataUrl = await qrService.generateQrDataUrl(qr.publicToken, dynamicOrigin);
+  const publicUrl = qrService.buildPublicQrUrl(qr.publicToken, dynamicOrigin);
 
   res.status(200).json({
     success: true,
@@ -37,8 +41,12 @@ export const getOrgQr = asyncHandler(async (req, res) => {
 
 export const regenerateQr = asyncHandler(async (req, res) => {
   const newQr = await qrService.regenerateQrCode(req.params.id, req.user);
-  const dataUrl = await qrService.generateQrDataUrl(newQr.publicToken);
-  const publicUrl = qrService.buildPublicQrUrl(newQr.publicToken);
+  const host = req.get('x-forwarded-host') || req.get('host');
+  const proto = req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http');
+  const dynamicOrigin = host ? `${proto}://${host}` : null;
+
+  const dataUrl = await qrService.generateQrDataUrl(newQr.publicToken, dynamicOrigin);
+  const publicUrl = qrService.buildPublicQrUrl(newQr.publicToken, dynamicOrigin);
 
   res.status(200).json({
     success: true,
@@ -107,7 +115,11 @@ export const downloadQrPdf = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'Organization or active QR Code not found');
   }
 
-  const pdfBuffer = await qrService.generateQrPdfBuffer(org, qr);
+  const host = req.get('x-forwarded-host') || req.get('host');
+  const proto = req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http');
+  const dynamicOrigin = host ? `${proto}://${host}` : null;
+
+  const pdfBuffer = await qrService.generateQrPdfBuffer(org, qr, dynamicOrigin);
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader(

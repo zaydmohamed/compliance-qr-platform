@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { ENV } from '../config/env.js';
 import { Organization } from '../models/Organization.js';
+import { OrganizationUser } from '../models/OrganizationUser.js';
 import { QRCode } from '../models/QRCode.js';
 import { Notification } from '../models/Notification.js';
 import { CustomerSubmission } from '../models/CustomerSubmission.js';
@@ -27,13 +28,19 @@ const runTests = async () => {
     // ==========================================================
     // TEST FLOW A: Organization Account Creation SMS
     // ==========================================================
+    const testPhone = '0619254366';
+
+    // Pre-test cleanup
+    await OrganizationUser.deleteMany({ phone: testPhone });
+    await Organization.deleteMany({ phone: testPhone });
+
     console.log('\n--- [FLOW A]: Testing Organization Account Creation SMS ---');
     const testOrgData = {
       name: `Test Org ${testTimestamp}`,
       displayTitle: `Test Clinic ${testTimestamp}`,
       email: `testorg_${testTimestamp}@example.com`,
-      phone: '0619254366',
-      whatsapp: '0619254366',
+      phone: testPhone,
+      whatsapp: testPhone,
       organizationType: 'Hospital',
       branch: 'Main Branch',
     };
@@ -41,7 +48,7 @@ const runTests = async () => {
     const testUserData = {
       fullName: 'Hassan Test Rep',
       username: `testrep_${testTimestamp}`,
-      phone: '0619254366',
+      phone: testPhone,
     };
 
     const created = await createCompleteOrganization(

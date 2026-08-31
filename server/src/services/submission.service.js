@@ -135,87 +135,102 @@ export const createPublicSubmission = async ({
     </div>
   `;
 
+  const notificationTasks = [];
+
   // Dispatch to Organization via SMS
   if (organization.phone) {
-    dispatchNotification({
-      organizationId: organization._id,
-      submissionId: submission._id,
-      channel: NOTIFICATION_CHANNEL.SMS,
-      type: isComplaint ? NOTIFICATION_TYPE.COMPLAINT : NOTIFICATION_TYPE.SUGGESTION,
-      recipientType: 'ORGANIZATION',
-      recipient: organization.phone,
-      recipientName: organization.name,
-      message: orgSmsMessage,
-      metadata: {
-        organizationLogo: organization.logo,
-        organizationName: organization.name,
-        referenceNumber,
-        category: submission.category,
-      },
-    }).catch((err) => console.error('[Org SMS Dispatch Error]', err.message));
+    notificationTasks.push(
+      dispatchNotification({
+        organizationId: organization._id,
+        submissionId: submission._id,
+        channel: NOTIFICATION_CHANNEL.SMS,
+        type: isComplaint ? NOTIFICATION_TYPE.COMPLAINT : NOTIFICATION_TYPE.SUGGESTION,
+        recipientType: 'ORGANIZATION',
+        recipient: organization.phone,
+        recipientName: organization.name,
+        message: orgSmsMessage,
+        metadata: {
+          organizationLogo: organization.logo,
+          organizationName: organization.name,
+          referenceNumber,
+          category: submission.category,
+        },
+      }).catch((err) => console.error('[Org SMS Dispatch Error]', err.message))
+    );
   }
 
   // Dispatch to Organization via WhatsApp
   if (organization.whatsapp) {
-    dispatchNotification({
-      organizationId: organization._id,
-      submissionId: submission._id,
-      channel: NOTIFICATION_CHANNEL.WHATSAPP,
-      type: isComplaint ? NOTIFICATION_TYPE.COMPLAINT : NOTIFICATION_TYPE.SUGGESTION,
-      recipientType: 'ORGANIZATION',
-      recipient: organization.whatsapp,
-      recipientName: organization.name,
-      message: orgSmsMessage,
-      metadata: {
-        organizationLogo: organization.logo,
-        organizationName: organization.name,
-        referenceNumber,
-        category: submission.category,
-      },
-    }).catch((err) => console.error('[Org WhatsApp Dispatch Error]', err.message));
+    notificationTasks.push(
+      dispatchNotification({
+        organizationId: organization._id,
+        submissionId: submission._id,
+        channel: NOTIFICATION_CHANNEL.WHATSAPP,
+        type: isComplaint ? NOTIFICATION_TYPE.COMPLAINT : NOTIFICATION_TYPE.SUGGESTION,
+        recipientType: 'ORGANIZATION',
+        recipient: organization.whatsapp,
+        recipientName: organization.name,
+        message: orgSmsMessage,
+        metadata: {
+          organizationLogo: organization.logo,
+          organizationName: organization.name,
+          referenceNumber,
+          category: submission.category,
+        },
+      }).catch((err) => console.error('[Org WhatsApp Dispatch Error]', err.message))
+    );
   }
 
   // Dispatch to Organization via Email (if configured)
   if (organization.email) {
-    dispatchNotification({
-      organizationId: organization._id,
-      submissionId: submission._id,
-      channel: NOTIFICATION_CHANNEL.EMAIL,
-      type: isComplaint ? NOTIFICATION_TYPE.COMPLAINT : NOTIFICATION_TYPE.SUGGESTION,
-      recipientType: 'ORGANIZATION',
-      recipient: organization.email,
-      recipientName: organization.name,
-      subject: `[${typeLabel}] New ${isComplaint ? 'Complaint' : 'Suggestion'} - Ref: ${referenceNumber}`,
-      message: orgSmsMessage,
-      html: orgEmailHtml,
-      metadata: {
-        organizationLogo: organization.logo,
-        organizationName: organization.name,
-        referenceNumber,
-        category: submission.category,
-      },
-    }).catch((err) => console.error('[Org Email Dispatch Error]', err.message));
+    notificationTasks.push(
+      dispatchNotification({
+        organizationId: organization._id,
+        submissionId: submission._id,
+        channel: NOTIFICATION_CHANNEL.EMAIL,
+        type: isComplaint ? NOTIFICATION_TYPE.COMPLAINT : NOTIFICATION_TYPE.SUGGESTION,
+        recipientType: 'ORGANIZATION',
+        recipient: organization.email,
+        recipientName: organization.name,
+        subject: `[${typeLabel}] New ${isComplaint ? 'Complaint' : 'Suggestion'} - Ref: ${referenceNumber}`,
+        message: orgSmsMessage,
+        html: orgEmailHtml,
+        metadata: {
+          organizationLogo: organization.logo,
+          organizationName: organization.name,
+          referenceNumber,
+          category: submission.category,
+        },
+      }).catch((err) => console.error('[Org Email Dispatch Error]', err.message))
+    );
   }
 
   // 2. Customer Thank-You SMS (English)
   if (submission.customerPhone) {
     const thankYouMessage = 'Thank you for sharing your feedback. Your submission has been received successfully. We appreciate your time and value your feedback.';
 
-    dispatchNotification({
-      organizationId: organization._id,
-      submissionId: submission._id,
-      channel: NOTIFICATION_CHANNEL.SMS,
-      type: NOTIFICATION_TYPE.CUSTOMER_THANK_YOU,
-      recipientType: 'CUSTOMER',
-      recipient: submission.customerPhone,
-      recipientName: submission.customerName || 'Customer',
-      message: thankYouMessage,
-      metadata: {
-        referenceNumber,
-        organizationName: organization.name,
-        organizationLogo: organization.logo,
-      },
-    }).catch((err) => console.error('[Customer Thank-You SMS Dispatch Error]', err.message));
+    notificationTasks.push(
+      dispatchNotification({
+        organizationId: organization._id,
+        submissionId: submission._id,
+        channel: NOTIFICATION_CHANNEL.SMS,
+        type: NOTIFICATION_TYPE.CUSTOMER_THANK_YOU,
+        recipientType: 'CUSTOMER',
+        recipient: submission.customerPhone,
+        recipientName: submission.customerName || 'Customer',
+        message: thankYouMessage,
+        metadata: {
+          referenceNumber,
+          organizationName: organization.name,
+          organizationLogo: organization.logo,
+        },
+      }).catch((err) => console.error('[Customer Thank-You SMS Dispatch Error]', err.message))
+    );
+  }
+
+  // Await all notification dispatches before returning so serverless doesn't drop requests
+  if (notificationTasks.length > 0) {
+    await Promise.allSettled(notificationTasks);
   }
 
   return {

@@ -87,8 +87,12 @@ export const getQrCode = asyncHandler(async (req, res) => {
   }
 
   const org = await orgService.getOrganizationById(req.organizationId);
-  const dataUrl = await qrService.generateQrDataUrl(qr.publicToken);
-  const publicUrl = qrService.buildPublicQrUrl(qr.publicToken);
+  const host = req.get('x-forwarded-host') || req.get('host');
+  const proto = req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http');
+  const dynamicOrigin = host ? `${proto}://${host}` : null;
+
+  const dataUrl = await qrService.generateQrDataUrl(qr.publicToken, dynamicOrigin);
+  const publicUrl = qrService.buildPublicQrUrl(qr.publicToken, dynamicOrigin);
 
   res.status(200).json({
     success: true,

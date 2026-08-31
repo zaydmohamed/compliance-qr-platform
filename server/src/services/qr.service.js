@@ -11,8 +11,9 @@ import { logAudit } from './audit.service.js';
 /**
  * Generate public URL from token
  */
-export const buildPublicQrUrl = (token) => {
-  return `${ENV.FRONTEND_URL}/c/${token}`;
+export const buildPublicQrUrl = (token, dynamicOrigin = null) => {
+  const baseUrl = dynamicOrigin || ENV.PUBLIC_APP_URL || ENV.FRONTEND_URL || 'https://compliance-qr-platform.vercel.app';
+  return `${baseUrl.replace(/\/+$/, '')}/c/${token}`;
 };
 
 /**
@@ -107,8 +108,8 @@ export const setQrStatus = async (organizationId, status, adminUser) => {
 /**
  * Generate QR code Data URL (PNG base64).
  */
-export const generateQrDataUrl = async (token) => {
-  const url = buildPublicQrUrl(token);
+export const generateQrDataUrl = async (token, dynamicOrigin = null) => {
+  const url = buildPublicQrUrl(token, dynamicOrigin);
   return QRCodeLib.toDataURL(url, {
     errorCorrectionLevel: 'H',
     margin: 2,
@@ -123,7 +124,7 @@ export const generateQrDataUrl = async (token) => {
 /**
  * Generate Printable PDF for organization QR display.
  */
-export const generateQrPdfBuffer = async (organization, qrCode) => {
+export const generateQrPdfBuffer = async (organization, qrCode, dynamicOrigin = null) => {
   return new Promise(async (resolve, reject) => {
     try {
       const doc = new PDFDocument({
@@ -135,7 +136,7 @@ export const generateQrPdfBuffer = async (organization, qrCode) => {
       doc.on('data', (chunk) => buffers.push(chunk));
       doc.on('end', () => resolve(Buffer.concat(buffers)));
 
-      const publicUrl = buildPublicQrUrl(qrCode.publicToken);
+      const publicUrl = buildPublicQrUrl(qrCode.publicToken, dynamicOrigin);
       const qrBuffer = await QRCodeLib.toBuffer(publicUrl, {
         errorCorrectionLevel: 'H',
         margin: 1,

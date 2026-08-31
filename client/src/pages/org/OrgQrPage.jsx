@@ -34,19 +34,18 @@ export const OrgQrPage = () => {
     fetchQr();
   }, []);
 
+  const { qr, dataUrl, publicUrl, organization } = data || {};
+  const effectivePublicUrl = (publicUrl && !publicUrl.includes('localhost') && !publicUrl.includes('192.168.'))
+    ? publicUrl
+    : (qr?.publicToken ? `${window.location.origin}/c/${qr.publicToken}` : (publicUrl || ''));
+
   const handleCopyLink = () => {
-    if (!data?.publicUrl) return;
-    navigator.clipboard.writeText(data.publicUrl);
+    if (!effectivePublicUrl) return;
+    navigator.clipboard.writeText(effectivePublicUrl);
     setCopied(true);
     toast.success('Public customer link copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
   };
-
-  if (loading) {
-    return <LoadingSpinner message="Generating high-resolution poster..." />;
-  }
-
-  const { qr, dataUrl, publicUrl, organization } = data || {};
 
   return (
     <div className="space-y-6 animate-in fade-in duration-150 max-w-5xl mx-auto">
@@ -188,7 +187,7 @@ export const OrgQrPage = () => {
               <input
                 type="text"
                 readOnly
-                value={publicUrl || ''}
+                value={effectivePublicUrl || ''}
                 className="bg-transparent border-none text-xs font-mono text-[#0086FF] flex-1 outline-none px-2"
               />
               <button

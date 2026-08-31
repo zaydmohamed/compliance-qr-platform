@@ -184,41 +184,52 @@ export const createCompleteOrganization = async ({ orgData, userData, logoPath }
   const subscription = await startInitialSubscription(organization._id, 30);
 
   // 5. Send Organization Account Creation SMS
-  const loginUrl = `${ENV.FRONTEND_URL || 'http://localhost:5173'}/login`;
+  const loginUrl = `${ENV.PUBLIC_APP_URL || ENV.FRONTEND_URL || 'https://compliance-qr-platform.vercel.app'}/login`;
   const accountCreationMessage = `Your Complaint QR account has been created successfully. You can now use your account to manage complaints and suggestions.\n\nPortal: ${loginUrl}\nUsername: ${userResult.user.username}\nTemporary Password: ${userResult.temporaryPassword}`;
+
+  const notificationTasks = [];
 
   // Send to Organization Registered Phone
   if (organization.phone) {
-    dispatchNotification({
-      organizationId: organization._id,
-      channel: NOTIFICATION_CHANNEL.SMS,
-      type: NOTIFICATION_TYPE.ACCOUNT_CREATION,
-      recipientType: 'ORGANIZATION',
-      recipient: organization.phone,
-      recipientName: organization.name,
-      message: accountCreationMessage,
-      metadata: {
-        organizationName: organization.name,
-        username: userResult.user.username,
-      },
-    }).catch((err) => console.error('[Org Account Creation SMS Dispatch Error]', err.message));
+    notificationTasks.push(
+      dispatchNotification({
+        organizationId: organization._id,
+        channel: NOTIFICATION_CHANNEL.SMS,
+        type: NOTIFICATION_TYPE.ACCOUNT_CREATION,
+        recipientType: 'ORGANIZATION',
+        recipient: organization.phone,
+        recipientName: organization.name,
+        message: accountCreationMessage,
+        metadata: {
+          organizationName: organization.name,
+          username: userResult.user.username,
+        },
+      }).catch((err) => console.error('[Org Account Creation SMS Dispatch Error]', err.message))
+    );
   }
 
   // Also send to representative phone if distinct from organization phone
   if (userResult.user.phone && userResult.user.phone !== organization.phone) {
-    dispatchNotification({
-      organizationId: organization._id,
-      channel: NOTIFICATION_CHANNEL.SMS,
-      type: NOTIFICATION_TYPE.ACCOUNT_CREATION,
-      recipientType: 'REPRESENTATIVE',
-      recipient: userResult.user.phone,
-      recipientName: userResult.user.fullName,
-      message: accountCreationMessage,
-      metadata: {
-        organizationName: organization.name,
-        username: userResult.user.username,
-      },
-    }).catch((err) => console.error('[Representative Account Creation SMS Dispatch Error]', err.message));
+    notificationTasks.push(
+      dispatchNotification({
+        organizationId: organization._id,
+        channel: NOTIFICATION_CHANNEL.SMS,
+        type: NOTIFICATION_TYPE.ACCOUNT_CREATION,
+        recipientType: 'REPRESENTATIVE',
+        recipient: userResult.user.phone,
+        recipientName: userResult.user.fullName,
+        message: accountCreationMessage,
+        metadata: {
+          organizationName: organization.name,
+          username: userResult.user.username,
+        },
+      }).catch((err) => console.error('[Representative Account Creation SMS Dispatch Error]', err.message))
+    );
+  }
+
+  // Await all notification dispatches before returning to prevent serverless premature termination
+  if (notificationTasks.length > 0) {
+    await Promise.allSettled(notificationTasks);
   }
 
   return {
