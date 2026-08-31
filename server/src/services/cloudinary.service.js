@@ -1,14 +1,17 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { ENV } from '../config/env.js';
 
-// Configure Cloudinary if credentials are provided
+// Configure Cloudinary if credentials or URL are provided
 const isConfigured = Boolean(
-  ENV.CLOUDINARY_CLOUD_NAME &&
-  ENV.CLOUDINARY_API_KEY &&
-  ENV.CLOUDINARY_API_SECRET
+  process.env.CLOUDINARY_URL ||
+  (ENV.CLOUDINARY_CLOUD_NAME && ENV.CLOUDINARY_API_KEY && ENV.CLOUDINARY_API_SECRET)
 );
 
-if (isConfigured) {
+if (process.env.CLOUDINARY_URL) {
+  cloudinary.config({
+    secure: true,
+  });
+} else if (isConfigured) {
   cloudinary.config({
     cloud_name: ENV.CLOUDINARY_CLOUD_NAME,
     api_key: ENV.CLOUDINARY_API_KEY,
