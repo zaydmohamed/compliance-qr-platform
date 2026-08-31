@@ -33,6 +33,9 @@ router.get('/renewal-requests', orgController.getRenewalHistory);
 // CSV Export
 router.get('/export/csv', orgController.exportCsv);
 
+// Notifications history
+router.get('/notifications', orgController.getOrganizationNotifications);
+
 // Organization AI Chatbot Copilot
 router.post('/chatbot', orgController.handleOrgChatbot);
 

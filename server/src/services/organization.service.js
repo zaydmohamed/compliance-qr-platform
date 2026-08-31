@@ -15,7 +15,7 @@ import { ApiError } from '../utils/ApiError.js';
 import { logAudit } from './audit.service.js';
 import { PlatformSettings } from '../models/PlatformSettings.js';
 import { dispatchNotification } from './notification.service.js';
-import { NOTIFICATION_CHANNEL } from '../constants/statuses.js';
+import { NOTIFICATION_CHANNEL, NOTIFICATION_TYPE } from '../constants/statuses.js';
 import { ENV } from '../config/env.js';
 
 /**
@@ -183,18 +183,42 @@ export const createCompleteOrganization = async ({ orgData, userData, logoPath }
   // 4. Start 30-Day Service Period
   const subscription = await startInitialSubscription(organization._id, 30);
 
-  // 5. Send Onboarding SMS to representative phone
-  if (userResult.user.phone) {
-    const loginUrl = `${ENV.FRONTEND_URL || 'http://localhost:5173'}/login`;
-    const onboardingMessage = `Your Compliance QR account has been created.\n\nLogin:\n${loginUrl}\n\nUsername:\n${userResult.user.username}\n\nTemporary Password:\n${userResult.temporaryPassword}`;
+  // 5. Send Organization Account Creation SMS
+  const loginUrl = `${ENV.FRONTEND_URL || 'http://localhost:5173'}/login`;
+  const accountCreationMessage = `Your Complaint QR account has been created successfully. You can now use your account to manage complaints and suggestions.\n\nPortal: ${loginUrl}\nUsername: ${userResult.user.username}\nTemporary Password: ${userResult.temporaryPassword}`;
 
+  // Send to Organization Registered Phone
+  if (organization.phone) {
     dispatchNotification({
       organizationId: organization._id,
       channel: NOTIFICATION_CHANNEL.SMS,
+      type: NOTIFICATION_TYPE.ACCOUNT_CREATION,
+      recipientType: 'ORGANIZATION',
+      recipient: organization.phone,
+      recipientName: organization.name,
+      message: accountCreationMessage,
+      metadata: {
+        organizationName: organization.name,
+        username: userResult.user.username,
+      },
+    }).catch((err) => console.error('[Org Account Creation SMS Dispatch Error]', err.message));
+  }
+
+  // Also send to representative phone if distinct from organization phone
+  if (userResult.user.phone && userResult.user.phone !== organization.phone) {
+    dispatchNotification({
+      organizationId: organization._id,
+      channel: NOTIFICATION_CHANNEL.SMS,
+      type: NOTIFICATION_TYPE.ACCOUNT_CREATION,
+      recipientType: 'REPRESENTATIVE',
       recipient: userResult.user.phone,
       recipientName: userResult.user.fullName,
-      message: onboardingMessage,
-    }).catch((err) => console.error('[Onboarding SMS Dispatch Error]', err.message));
+      message: accountCreationMessage,
+      metadata: {
+        organizationName: organization.name,
+        username: userResult.user.username,
+      },
+    }).catch((err) => console.error('[Representative Account Creation SMS Dispatch Error]', err.message));
   }
 
   return {

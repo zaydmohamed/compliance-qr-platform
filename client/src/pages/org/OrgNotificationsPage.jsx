@@ -11,11 +11,14 @@ import {
   Calendar,
   MessageSquare,
   AlertTriangle,
+  Building2,
 } from 'lucide-react';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 
 export const OrgNotificationsPage = () => {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -68,7 +71,7 @@ export const OrgNotificationsPage = () => {
       case 'SENT':
       case 'DELIVERED':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             SENT
           </span>
@@ -76,8 +79,8 @@ export const OrgNotificationsPage = () => {
       case 'FAILED':
         return (
           <span
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200"
-            title={errorMessage || 'SMS delivery failed'}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200"
+            title={errorMessage || 'Delivery failed'}
           >
             <XCircle className="w-3.5 h-3.5 text-rose-600" />
             FAILED
@@ -85,7 +88,7 @@ export const OrgNotificationsPage = () => {
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
             <Clock className="w-3.5 h-3.5 text-amber-600" />
             PENDING
           </span>
@@ -95,28 +98,38 @@ export const OrgNotificationsPage = () => {
 
   const getTypeBadge = (type) => {
     switch (type) {
+      case 'COMPLAINT':
       case 'CABASHO':
         return (
-          <span className="px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-rose-100/70 text-rose-700 border border-rose-200">
-            CABASHO
+          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-200 tracking-wide uppercase">
+            COMPLAINT
           </span>
         );
+      case 'SUGGESTION':
       case 'TALO':
+      case 'FEEDBACK':
         return (
-          <span className="px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-blue-100/70 text-blue-700 border border-blue-200">
-            TALO
+          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-sky-100 text-sky-800 border border-sky-200 tracking-wide uppercase">
+            SUGGESTION
           </span>
         );
+      case 'ACCOUNT_CREATION':
       case 'REGISTRATION':
         return (
-          <span className="px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-purple-100/70 text-purple-700 border border-purple-200">
-            ONBOARDING
+          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-purple-100 text-purple-800 border border-purple-200 tracking-wide uppercase">
+            ACCOUNT CREATION
+          </span>
+        );
+      case 'CUSTOMER_THANK_YOU':
+        return (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 tracking-wide uppercase">
+            CUSTOMER THANK YOU
           </span>
         );
       default:
         return (
-          <span className="px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-slate-100 text-slate-700 border border-slate-200">
-            {type || 'SMS'}
+          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-slate-100 text-slate-700 border border-slate-200 uppercase">
+            {type || 'NOTIFICATION'}
           </span>
         );
     }
@@ -124,16 +137,32 @@ export const OrgNotificationsPage = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Header */}
+      {/* Header with Organization Branding */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#0086FF]/10 flex items-center justify-center text-[#0086FF]">
-            <BellRing className="w-6 h-6" />
-          </div>
+        <div className="flex items-center gap-3.5">
+          {user?.organization?.logo ? (
+            <img
+              src={user.organization.logo}
+              alt={user.organization.name}
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              className="w-12 h-12 rounded-2xl object-contain p-1 bg-slate-50 border border-slate-200 shadow-sm"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-2xl bg-[#0086FF]/10 flex items-center justify-center text-[#0086FF]">
+              <BellRing className="w-6 h-6" />
+            </div>
+          )}
           <div>
-            <h1 className="text-xl font-black text-[#2F2E2D]">SMS Notification History</h1>
-            <p className="text-xs text-[#5A5856]">
-              Raad-raaca fariimaha SMS ee loo diray maamulka xaruntaada ({totalCount} total)
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-black text-[#2F2E2D]">Notification & SMS Center</h1>
+              {user?.organization?.name && (
+                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                  {user.organization.displayTitle || user.organization.name}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-[#5A5856] mt-0.5">
+              Raad-raaca fariimaha SMS iyo ogaysiisyada xaruntaada ({totalCount} total)
             </p>
           </div>
         </div>
@@ -171,9 +200,10 @@ export const OrgNotificationsPage = () => {
             className="w-full px-3 py-2.5 rounded-2xl border border-slate-200 bg-white text-xs font-medium text-[#2F2E2D] focus:outline-none focus:ring-2 focus:ring-[#0086FF]/20"
           >
             <option value="ALL">Dhammaan Noocyada (All Types)</option>
-            <option value="CABASHO">Cabasho Kaliya</option>
-            <option value="TALO">Talo Kaliya</option>
-            <option value="REGISTRATION">Onboarding / Galitaanka</option>
+            <option value="COMPLAINT">Cabasho (COMPLAINT)</option>
+            <option value="SUGGESTION">Talo (SUGGESTION)</option>
+            <option value="ACCOUNT_CREATION">Akoon Samayn (ACCOUNT CREATION)</option>
+            <option value="CUSTOMER_THANK_YOU">Mahadcelin Macmiil (CUSTOMER THANK YOU)</option>
           </select>
         </div>
 
@@ -216,7 +246,7 @@ export const OrgNotificationsPage = () => {
                 <tr>
                   <th className="py-3.5 px-4">Taariikhda</th>
                   <th className="py-3.5 px-4">Nooca</th>
-                  <th className="py-3.5 px-4">Fariinta (SMS Message)</th>
+                  <th className="py-3.5 px-4">Fariinta (Message Content)</th>
                   <th className="py-3.5 px-4">Qofka Loo Diray</th>
                   <th className="py-3.5 px-4 text-right">Xaaladda</th>
                 </tr>
@@ -233,6 +263,8 @@ export const OrgNotificationsPage = () => {
                       })
                     : 'N/A';
 
+                  const orgLogo = item.metadata?.organizationLogo || user?.organization?.logo;
+
                   return (
                     <tr key={item._id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="py-3.5 px-4 whitespace-nowrap text-slate-600 font-medium">
@@ -247,12 +279,26 @@ export const OrgNotificationsPage = () => {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <div className="max-w-md">
-                          <p className="font-semibold text-[#2F2E2D] whitespace-pre-wrap line-clamp-3">
-                            "{item.message}"
+                        <div className="max-w-lg space-y-1.5">
+                          {/* Display actual organization logo if available */}
+                          {orgLogo && (
+                            <div className="flex items-center gap-2 pb-1">
+                              <img
+                                src={orgLogo}
+                                alt="Organization Logo"
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                className="w-6 h-6 object-contain rounded-md bg-white border border-slate-200 p-0.5"
+                              />
+                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                                {item.metadata?.organizationName || user?.organization?.name}
+                              </span>
+                            </div>
+                          )}
+                          <p className="font-medium text-[#2F2E2D] whitespace-pre-wrap text-xs bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
+                            {item.message}
                           </p>
                           {item.errorMessage && (
-                            <p className="text-[10px] text-rose-600 flex items-center gap-1 mt-1 font-medium">
+                            <p className="text-[10px] text-rose-600 flex items-center gap-1 font-medium">
                               <AlertTriangle className="w-3 h-3 flex-shrink-0" />
                               Cillad: {item.errorMessage}
                             </p>
@@ -262,9 +308,14 @@ export const OrgNotificationsPage = () => {
 
                       <td className="py-3.5 px-4 whitespace-nowrap text-slate-600 font-mono font-medium">
                         <div className="flex items-center gap-1.5">
-                          <Phone className="w-3 h-3 text-slate-400" />
+                          <Phone className="w-3.5 h-3.5 text-slate-400" />
                           {item.recipient}
                         </div>
+                        {item.recipientType && (
+                          <span className="text-[10px] text-slate-400 font-sans block mt-0.5">
+                            ({item.recipientType})
+                          </span>
+                        )}
                       </td>
 
                       <td className="py-3.5 px-4 whitespace-nowrap text-right">

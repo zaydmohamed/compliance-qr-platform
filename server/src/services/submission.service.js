@@ -3,7 +3,7 @@ import { QRCode } from '../models/QRCode.js';
 import { Organization } from '../models/Organization.js';
 import { Subscription } from '../models/Subscription.js';
 import { generateReferenceNumber } from '../utils/referenceNumber.js';
-import { QR_STATUS, SUBMISSION_TYPE, NOTIFICATION_CHANNEL } from '../constants/statuses.js';
+import { QR_STATUS, SUBMISSION_TYPE, NOTIFICATION_CHANNEL, NOTIFICATION_TYPE } from '../constants/statuses.js';
 import { calculateSubscriptionStatus } from './subscription.service.js';
 import { dispatchNotification } from './notification.service.js';
 import { ApiError } from '../utils/ApiError.js';
@@ -108,31 +108,114 @@ export const createPublicSubmission = async ({
     priority: 'MEDIUM',
   });
 
-  // Async dispatch notifications (SMS and WhatsApp) to Organization
-  const notificationMsg = type === SUBMISSION_TYPE.COMPLAINT
-    ? `[CABASHO NEW] Ref: ${referenceNumber}\nOrg: ${organization.name}\nCategory: ${submission.category}\nMessage: ${submission.message}\nFrom: ${submission.customerPhone || 'Anonymous'}`
-    : `[TALO NEW] Ref: ${referenceNumber}\nOrg: ${organization.name}\nSuggestion: ${submission.message}\nSolution: ${submission.suggestedSolution || 'N/A'}`;
+  // 1. Organization Notification (SMS, WhatsApp, Email)
+  const isComplaint = type === SUBMISSION_TYPE.COMPLAINT;
+  const typeLabel = isComplaint ? 'COMPLAINT' : 'SUGGESTION';
+  const orgTitle = organization.displayTitle || organization.name;
 
+  const orgSmsMessage = `[${orgTitle.toUpperCase()}]\n\n${typeLabel}\n\nRef: ${referenceNumber}\nCategory: ${submission.category}\n${isComplaint ? 'Details' : 'Suggestion'}: ${submission.message}${!isComplaint && submission.suggestedSolution ? `\nProposed Solution: ${submission.suggestedSolution}` : ''}\nFrom: ${submission.customerPhone || 'Anonymous'}`;
+
+  const orgEmailHtml = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 16px; padding: 28px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+      ${organization.logo ? `<div style="text-align: center; margin-bottom: 18px;"><img src="${organization.logo}" alt="${orgTitle}" style="max-height: 75px; max-width: 150px; object-fit: contain; border-radius: 8px;" /></div>` : ''}
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span style="display: inline-block; padding: 6px 16px; border-radius: 9999px; font-weight: 800; font-size: 13px; letter-spacing: 0.5px; ${isComplaint ? 'background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;' : 'background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;'}">${typeLabel}</span>
+        <h2 style="margin: 10px 0 2px 0; color: #0f172a; font-size: 18px; font-weight: 800;">${orgTitle}</h2>
+      </div>
+      <div style="background: #f8fafc; border-radius: 12px; padding: 18px; font-size: 13px; line-height: 1.6; color: #334155; border: 1px solid #f1f5f9;">
+        <p style="margin: 0 0 10px 0;"><strong>Reference Number:</strong> <span style="font-family: monospace; font-weight: 700; color: #0086ff;">${referenceNumber}</span></p>
+        <p style="margin: 0 0 10px 0;"><strong>Category:</strong> ${submission.category}</p>
+        <p style="margin: 0 0 10px 0;"><strong>${isComplaint ? 'Complaint Message' : 'Customer Suggestion'}:</strong><br/>${submission.message}</p>
+        ${!isComplaint && submission.suggestedSolution ? `<p style="margin: 0 0 10px 0;"><strong>Suggested Solution:</strong><br/>${submission.suggestedSolution}</p>` : ''}
+        <p style="margin: 0; padding-top: 8px; border-top: 1px solid #e2e8f0;"><strong>Customer Phone:</strong> ${submission.customerPhone || 'Anonymous'}</p>
+      </div>
+      <div style="margin-top: 20px; text-align: center; font-size: 11px; color: #94a3b8;">
+        Sent via Compliance QR Management Platform
+      </div>
+    </div>
+  `;
+
+  // Dispatch to Organization via SMS
   if (organization.phone) {
     dispatchNotification({
       organizationId: organization._id,
       submissionId: submission._id,
       channel: NOTIFICATION_CHANNEL.SMS,
+      type: isComplaint ? NOTIFICATION_TYPE.COMPLAINT : NOTIFICATION_TYPE.SUGGESTION,
+      recipientType: 'ORGANIZATION',
       recipient: organization.phone,
       recipientName: organization.name,
-      message: notificationMsg,
-    }).catch((err) => console.error('[SMS Dispatch Error]', err));
+      message: orgSmsMessage,
+      metadata: {
+        organizationLogo: organization.logo,
+        organizationName: organization.name,
+        referenceNumber,
+        category: submission.category,
+      },
+    }).catch((err) => console.error('[Org SMS Dispatch Error]', err.message));
   }
 
+  // Dispatch to Organization via WhatsApp
   if (organization.whatsapp) {
     dispatchNotification({
       organizationId: organization._id,
       submissionId: submission._id,
       channel: NOTIFICATION_CHANNEL.WHATSAPP,
+      type: isComplaint ? NOTIFICATION_TYPE.COMPLAINT : NOTIFICATION_TYPE.SUGGESTION,
+      recipientType: 'ORGANIZATION',
       recipient: organization.whatsapp,
       recipientName: organization.name,
-      message: notificationMsg,
-    }).catch((err) => console.error('[WhatsApp Dispatch Error]', err));
+      message: orgSmsMessage,
+      metadata: {
+        organizationLogo: organization.logo,
+        organizationName: organization.name,
+        referenceNumber,
+        category: submission.category,
+      },
+    }).catch((err) => console.error('[Org WhatsApp Dispatch Error]', err.message));
+  }
+
+  // Dispatch to Organization via Email (if configured)
+  if (organization.email) {
+    dispatchNotification({
+      organizationId: organization._id,
+      submissionId: submission._id,
+      channel: NOTIFICATION_CHANNEL.EMAIL,
+      type: isComplaint ? NOTIFICATION_TYPE.COMPLAINT : NOTIFICATION_TYPE.SUGGESTION,
+      recipientType: 'ORGANIZATION',
+      recipient: organization.email,
+      recipientName: organization.name,
+      subject: `[${typeLabel}] New ${isComplaint ? 'Complaint' : 'Suggestion'} - Ref: ${referenceNumber}`,
+      message: orgSmsMessage,
+      html: orgEmailHtml,
+      metadata: {
+        organizationLogo: organization.logo,
+        organizationName: organization.name,
+        referenceNumber,
+        category: submission.category,
+      },
+    }).catch((err) => console.error('[Org Email Dispatch Error]', err.message));
+  }
+
+  // 2. Customer Thank-You SMS (English)
+  if (submission.customerPhone) {
+    const thankYouMessage = 'Thank you for sharing your feedback. Your submission has been received successfully. We appreciate your time and value your feedback.';
+
+    dispatchNotification({
+      organizationId: organization._id,
+      submissionId: submission._id,
+      channel: NOTIFICATION_CHANNEL.SMS,
+      type: NOTIFICATION_TYPE.CUSTOMER_THANK_YOU,
+      recipientType: 'CUSTOMER',
+      recipient: submission.customerPhone,
+      recipientName: submission.customerName || 'Customer',
+      message: thankYouMessage,
+      metadata: {
+        referenceNumber,
+        organizationName: organization.name,
+        organizationLogo: organization.logo,
+      },
+    }).catch((err) => console.error('[Customer Thank-You SMS Dispatch Error]', err.message));
   }
 
   return {
@@ -140,6 +223,7 @@ export const createPublicSubmission = async ({
     type: submission.type,
     submittedAt: submission.submittedAt,
     organizationName: organization.displayTitle || organization.name,
+    organizationLogo: organization.logo,
     whatsappContact: organization.whatsapp,
   };
 };

@@ -6,6 +6,7 @@ import * as renewalService from '../services/renewal.service.js';
 import * as reportService from '../services/report.service.js';
 import { QRCode } from '../models/QRCode.js';
 import { Organization } from '../models/Organization.js';
+import { Notification } from '../models/Notification.js';
 import { QR_STATUS } from '../constants/statuses.js';
 import { ApiError } from '../utils/ApiError.js';
 
@@ -146,5 +147,35 @@ export const handleOrgChatbot = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     data: result,
+  });
+});
+
+export const getOrganizationNotifications = asyncHandler(async (req, res) => {
+  const { channel, status, type, page = 1, limit = 15 } = req.query;
+  const query = { organizationId: req.organizationId };
+
+  if (channel && channel !== 'ALL') query.channel = channel;
+  if (status && status !== 'ALL') query.status = status;
+  if (type && type !== 'ALL') query.type = type;
+
+  const skip = (page - 1) * limit;
+  const [total, notifications] = await Promise.all([
+    Notification.countDocuments(query),
+    Notification.find(query)
+      .populate('submissionId', 'referenceNumber type category')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit)),
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: notifications,
+    meta: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / limit) || 1,
+    },
   });
 });
