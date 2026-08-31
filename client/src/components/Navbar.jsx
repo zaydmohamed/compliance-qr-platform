@@ -50,7 +50,6 @@ export const Navbar = ({ variant = 'dashboard', title, onToggleSidebar }) => {
             <Link to="/" className="hover:text-[#2C3925] transition-colors">Home</Link>
             <Link to="/about" className="hover:text-[#2C3925] transition-colors">About System</Link>
             <Link to="/contact" className="hover:text-[#2C3925] transition-colors">Contact</Link>
-            <Link to="/platform-complaint" className="hover:text-[#2C3925] transition-colors text-rose-600">Report Issue</Link>
           </nav>
 
           {/* Right Action / Mobile Hamburger */}
@@ -106,13 +105,6 @@ export const Navbar = ({ variant = 'dashboard', title, onToggleSidebar }) => {
               className="block px-3 py-2 rounded-xl text-xs font-semibold text-[#2F2E2D] hover:bg-slate-50"
             >
               Contact Support
-            </Link>
-            <Link
-              to="/platform-complaint"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50"
-            >
-              Report Platform Issue
             </Link>
           </div>
         )}
