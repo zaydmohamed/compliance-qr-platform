@@ -1,16 +1,15 @@
-import dotenv from 'dotenv';
-dotenv.config({ path: './server/.env' });
-
 import app from '../server/src/app.js';
 import { connectDB } from '../server/src/config/db.js';
 
-// Connect to MongoDB on cold start
-let isConnected = false;
-
 const handler = async (req, res) => {
-  if (!isConnected) {
+  try {
     await connectDB();
-    isConnected = true;
+  } catch (err) {
+    console.error('[Serverless DB Error]:', err.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Database connection failed. Please ensure MONGODB_URI is configured and IP whitelist includes 0.0.0.0/0.',
+    });
   }
   return app(req, res);
 };

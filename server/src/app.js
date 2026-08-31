@@ -40,7 +40,19 @@ app.use(
 
 app.use(
   cors({
-    origin: [ENV.FRONTEND_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        ENV.FRONTEND_URL,
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+      ];
+      // Allow requests with no origin (mobile apps, curl, same-origin)
+      if (!origin) return callback(null, true);
+      // Allow any .vercel.app subdomain
+      if (origin.endsWith('.vercel.app')) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(null, false);
+    },
     credentials: true,
   })
 );

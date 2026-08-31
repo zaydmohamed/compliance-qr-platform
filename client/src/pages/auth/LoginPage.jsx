@@ -135,9 +135,11 @@ export const LoginPage = () => {
             <img
               src={platformSettings.logo}
               alt=""
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
               className="w-14 h-14 rounded-2xl bg-white object-contain p-1.5 border border-slate-200 shadow-md mx-auto"
             />
-          ) : (
+          ) : null}
+          {!platformSettings?.logo && (
             <div className="w-12 h-12 rounded-2xl bg-[#2C3925] flex items-center justify-center text-white shadow-md mx-auto">
               <QrCode className="w-7 h-7 text-white" />
             </div>
