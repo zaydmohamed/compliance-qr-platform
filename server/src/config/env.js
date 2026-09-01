@@ -12,14 +12,14 @@ if (fs.existsSync(path.resolve('server/.env'))) {
 }
 
 export const ENV = {
-  NODE_ENV: process.env.NODE_ENV || 'development',
+  NODE_ENV: process.env.NODE_ENV || 'production',
   PORT: parseInt(process.env.PORT || '5000', 10),
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/compliance-qr',
+  MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://muzamilrooble_db_user:NRggF8guR8tYi4yn@cluster0.ljbhaun.mongodb.net/compliance-qr?retryWrites=true&w=majority&appName=Cluster0',
   JWT_SECRET: process.env.JWT_SECRET || 'compliance_qr_super_secret_jwt_key_2026_x89f7a2',
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'compliance_qr_refresh_super_secret_jwt_key_2026',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '1d',
-  FRONTEND_URL: process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://compliance-qr-platform.vercel.app' : 'http://localhost:5173'),
-  PUBLIC_APP_URL: process.env.PUBLIC_APP_URL || process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://compliance-qr-platform.vercel.app' : 'http://localhost:5173'),
+  FRONTEND_URL: process.env.FRONTEND_URL || 'https://compliance-qr-platform.vercel.app',
+  PUBLIC_APP_URL: process.env.PUBLIC_APP_URL || process.env.FRONTEND_URL || 'https://compliance-qr-platform.vercel.app',
   SMS_PROVIDER: process.env.SMS_PROVIDER || 'TABAARAK',
   TABAARAK_SMS_NAME: process.env.TABAARAK_SMS_NAME || 'Bile',
   TABAARAK_SMS_PASSWORD: process.env.TABAARAK_SMS_PASSWORD || 'Bile2026@!',
@@ -35,8 +35,8 @@ export const ENV = {
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'Admin@123456',
   ADMIN_FULLNAME: process.env.ADMIN_FULLNAME || 'Platform Admin',
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
-  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '',
-  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
-  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
-  CLOUDINARY_URL: process.env.CLOUDINARY_URL || '',
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || 'v9egcndw',
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '892956312788338',
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || 'kSCuf9hUyr52HkEjoEnQuQH5nIg',
+  CLOUDINARY_URL: process.env.CLOUDINARY_URL || 'cloudinary://892956312788338:kSCuf9hUyr52HkEjoEnQuQH5nIg@v9egcndw',
 };

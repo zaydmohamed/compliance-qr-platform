@@ -107,6 +107,21 @@ app.use('/api/admin/superadmins', adminSuperadminRoutes);
 app.use('/api/organization', orgRoutes);
 app.use('/api/public', publicRoutes);
 
+// Fallback mounts if /api prefix is stripped by serverless rewrite
+app.use('/auth', authRoutes);
+app.use('/admin/organizations', adminOrgRoutes);
+app.use('/admin/organization-users', adminUserRoutes);
+app.use('/admin/submissions', adminSubmissionRoutes);
+app.use('/admin/renewal-requests', adminRenewalRoutes);
+app.use('/admin/payments', adminPaymentRoutes);
+app.use('/admin/reports', adminReportRoutes);
+app.use('/admin/notifications', adminNotificationRoutes);
+app.use('/admin/audit-logs', adminAuditRoutes);
+app.use('/admin/settings', adminSettingsRoutes);
+app.use('/admin/superadmins', adminSuperadminRoutes);
+app.use('/organization', orgRoutes);
+app.use('/public', publicRoutes);
+
 // Centralized Error Handling
 app.use(errorHandler);
 
