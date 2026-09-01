@@ -10,6 +10,10 @@ const platformSettingsSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    publicAppUrl: {
+      type: String,
+      default: 'https://compliance-qr-platform.vercel.app',
+    },
     defaultServiceDurationDays: {
       type: Number,
       default: 30,

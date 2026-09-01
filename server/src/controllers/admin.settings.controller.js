@@ -26,6 +26,7 @@ export const getPublicSettings = asyncHandler(async (req, res) => {
     data: {
       platformName: settings.platformName || 'Compliance QR',
       logo: settings.logo || '',
+      publicAppUrl: settings.publicAppUrl || 'https://compliance-qr-platform.vercel.app',
       contactPhone: settings.contactPhone,
       contactEmail: settings.contactEmail,
     },

@@ -41,17 +41,36 @@ app.use(
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, curl, same-origin, server-to-server)
+      if (!origin) return callback(null, true);
+
       const allowedOrigins = [
         ENV.FRONTEND_URL,
+        ENV.PUBLIC_APP_URL,
         'http://localhost:5173',
+        'http://localhost:5000',
         'http://127.0.0.1:5173',
-      ];
-      // Allow requests with no origin (mobile apps, curl, same-origin)
-      if (!origin) return callback(null, true);
-      // Allow any .vercel.app subdomain
-      if (origin.endsWith('.vercel.app')) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      callback(null, false);
+        'http://127.0.0.1:5000',
+      ].filter(Boolean);
+
+      // Allow any .vercel.app, .trycloudflare.com, .ngrok-free.app, .ngrok.app, .loca.lt
+      if (
+        origin.endsWith('.vercel.app') ||
+        origin.endsWith('.trycloudflare.com') ||
+        origin.includes('ngrok-free.app') ||
+        origin.includes('ngrok.app') ||
+        origin.includes('ngrok.io') ||
+        origin.endsWith('.loca.lt') ||
+        allowedOrigins.includes(origin) ||
+        origin.includes('192.168.') ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1')
+      ) {
+        return callback(null, true);
+      }
+
+      // Allow dynamically in production/development
+      return callback(null, true);
     },
     credentials: true,
   })

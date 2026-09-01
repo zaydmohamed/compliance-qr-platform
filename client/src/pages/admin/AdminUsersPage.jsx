@@ -58,8 +58,9 @@ export const AdminUsersPage = () => {
   });
   const [submittingPassword, setSubmittingPassword] = useState(false);
 
-  // Platform Branding State
+  // Platform Branding & Domain State
   const [brandName, setBrandName] = useState('');
+  const [publicAppUrl, setPublicAppUrl] = useState('');
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState('');
   const [savingBrand, setSavingBrand] = useState(false);
@@ -86,6 +87,7 @@ export const AdminUsersPage = () => {
   useEffect(() => {
     if (platformSettings) {
       setBrandName(platformSettings.platformName || '');
+      setPublicAppUrl(platformSettings.publicAppUrl || 'https://compliance-qr-platform.vercel.app');
       setLogoPreview(platformSettings.logo || '');
     }
   }, [platformSettings]);
@@ -117,6 +119,7 @@ export const AdminUsersPage = () => {
     try {
       const formData = new FormData();
       formData.append('platformName', brandName.trim() || 'Compliance QR');
+      formData.append('publicAppUrl', publicAppUrl.trim() || 'https://compliance-qr-platform.vercel.app');
       if (logoFile) {
         formData.append('logo', logoFile);
       } else if (!logoPreview) {
@@ -125,7 +128,7 @@ export const AdminUsersPage = () => {
       await api.patch('/admin/settings', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      toast.success('Platform branding updated!');
+      toast.success('Platform branding & domain settings updated!');
       setLogoFile(null);
       await refreshPlatformSettings();
     } catch (err) {
@@ -520,7 +523,7 @@ export const AdminUsersPage = () => {
             </div>
 
             {/* Platform Name */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               <label className="block text-xs font-bold text-[#2F2E2D]">
                 Platform Name
               </label>
@@ -535,6 +538,23 @@ export const AdminUsersPage = () => {
                 This name appears across the entire platform branding.
               </p>
             </div>
+
+            {/* Public App URL / Domain */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-[#2F2E2D]">
+                Public Domain / App URL (Website Link-ga Dadku Scan-gareeyaan)
+              </label>
+              <input
+                type="url"
+                value={publicAppUrl}
+                onChange={(e) => setPublicAppUrl(e.target.value)}
+                placeholder="https://compliance-qr-platform.vercel.app"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0086FF] font-mono focus:bg-white focus:ring-2 focus:ring-[#0086FF]/20 focus:border-[#0086FF] outline-none"
+              />
+              <p className="text-[10px] text-[#5A5856]">
+                Kani waa cinwaanka rasmiga ah ee internet-ka (Domain ama Vercel URL) ee lagu daabaco QR Codes-ka iyo Posters-ka si qof kasta oo data mobayl (4G) wata uu u furo.
+              </p>
+            </div>
           </div>
 
           <div className="flex justify-end pt-2 border-t border-slate-100">
@@ -544,7 +564,7 @@ export const AdminUsersPage = () => {
               className="px-5 py-2.5 rounded-xl bg-[#0086FF] hover:bg-[#006ED6] text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50"
             >
               <CheckCircle className="w-4 h-4" />
-              {savingBrand ? 'Saving...' : 'Save Branding'}
+              {savingBrand ? 'Saving...' : 'Save Settings & Domain'}
             </button>
           </div>
         </form>

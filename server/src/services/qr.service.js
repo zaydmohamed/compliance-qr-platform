@@ -8,11 +8,57 @@ import { ENV } from '../config/env.js';
 import { ApiError } from '../utils/ApiError.js';
 import { logAudit } from './audit.service.js';
 
+import { PlatformSettings } from '../models/PlatformSettings.js';
+
+const isPrivateHost = (urlStr) => {
+  if (!urlStr) return true;
+  return (
+    urlStr.includes('localhost') ||
+    urlStr.includes('127.0.0.1') ||
+    urlStr.includes('192.168.') ||
+    urlStr.includes('10.') ||
+    urlStr.includes('172.16.') ||
+    urlStr.includes('172.17.') ||
+    urlStr.includes('172.18.') ||
+    urlStr.includes('172.19.') ||
+    urlStr.includes('172.20.') ||
+    urlStr.includes('172.21.') ||
+    urlStr.includes('172.22.') ||
+    urlStr.includes('172.23.') ||
+    urlStr.includes('172.24.') ||
+    urlStr.includes('172.25.') ||
+    urlStr.includes('172.26.') ||
+    urlStr.includes('172.27.') ||
+    urlStr.includes('172.28.') ||
+    urlStr.includes('172.29.') ||
+    urlStr.includes('172.30.') ||
+    urlStr.includes('172.31.')
+  );
+};
+
 /**
  * Generate public URL from token
  */
 export const buildPublicQrUrl = (token, dynamicOrigin = null) => {
-  const baseUrl = dynamicOrigin || ENV.PUBLIC_APP_URL || ENV.FRONTEND_URL || 'https://compliance-qr-platform.vercel.app';
+  let baseUrl = null;
+
+  // 1. If dynamicOrigin is a public web host or tunnel (e.g. *.vercel.app, *.trycloudflare.com, *.ngrok*), use it
+  if (dynamicOrigin && !isPrivateHost(dynamicOrigin)) {
+    baseUrl = dynamicOrigin;
+  }
+  // 2. Otherwise check ENV.PUBLIC_APP_URL if it is not a private LAN IP
+  else if (ENV.PUBLIC_APP_URL && !isPrivateHost(ENV.PUBLIC_APP_URL)) {
+    baseUrl = ENV.PUBLIC_APP_URL;
+  }
+  // 3. Otherwise check ENV.FRONTEND_URL if not private
+  else if (ENV.FRONTEND_URL && !isPrivateHost(ENV.FRONTEND_URL)) {
+    baseUrl = ENV.FRONTEND_URL;
+  }
+  // 4. Default to live production URL
+  else {
+    baseUrl = 'https://compliance-qr-platform.vercel.app';
+  }
+
   return `${baseUrl.replace(/\/+$/, '')}/c/${token}`;
 };
 
