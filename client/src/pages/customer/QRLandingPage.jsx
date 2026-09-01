@@ -73,9 +73,9 @@ export const QRLandingPage = () => {
           <h2 className="text-xl font-extrabold text-[#2F2E2D] tracking-tight">
             {organization.displayTitle || organization.name}
           </h2>
-          {organization.branch && (
+          {(organization.branch || organization.address) && (
             <p className="text-xs font-semibold text-[#0086FF] mt-0.5">
-              {organization.branch}
+              {[organization.branch, organization.address].filter(Boolean).join(' • ')}
             </p>
           )}
         </div>

@@ -273,18 +273,33 @@ export const QrCodesPage = () => {
         {previewOrg && (
           <div className="space-y-5">
             {/* Poster Card */}
-            <div className="border-2 border-[#2C3925] rounded-2xl p-6 bg-white text-center space-y-4 shadow-sm max-w-sm mx-auto">
+            <div className="border-2 border-[#2C3925] rounded-2xl p-6 bg-white text-center space-y-3.5 shadow-sm max-w-sm mx-auto">
+              {/* 1. Logo at the very top */}
               {previewOrg.logo ? (
                 <img
                   src={previewOrg.logo}
-                  alt=""
-                  className="h-12 mx-auto object-contain"
+                  alt={previewOrg.name}
+                  className="h-14 max-w-[140px] mx-auto object-contain p-1 rounded-xl bg-slate-50 border border-slate-200 shadow-xs"
                 />
               ) : (
+                <div className="w-12 h-12 rounded-xl bg-[#2C3925] text-white flex items-center justify-center font-extrabold text-lg mx-auto shadow-sm">
+                  {(previewOrg.displayTitle || previewOrg.name)?.charAt(0)}
+                </div>
+              )}
+
+              {/* 2. Organization Name */}
+              <div>
                 <h3 className="text-base font-extrabold text-[#2C3925] uppercase tracking-tight">
                   {previewOrg.displayTitle || previewOrg.name}
                 </h3>
-              )}
+
+                {/* 3. Location / Branch / Address */}
+                {(previewOrg.branch || previewOrg.address) && (
+                  <p className="text-xs font-semibold text-[#0086FF] mt-0.5">
+                    {[previewOrg.branch, previewOrg.address].filter(Boolean).join(' • ')}
+                  </p>
+                )}
+              </div>
 
               <p className="text-[11px] font-bold text-[#5A5856] uppercase tracking-wider">
                 CABASHO & TALO — COMPLAINT & FEEDBACK

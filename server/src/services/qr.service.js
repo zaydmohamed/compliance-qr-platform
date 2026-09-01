@@ -193,26 +193,56 @@ export const generateQrPdfBuffer = async (organization, qrCode, dynamicOrigin = 
         },
       });
 
-      // Background decorative banner
-      doc.rect(0, 0, doc.page.width, 140).fill('#2C3925');
-
-      // Title & Org Name
-      doc.fillColor('#FFFFFF')
-        .fontSize(24)
-        .font('Helvetica-Bold')
-        .text(organization.displayTitle || organization.name, 40, 45, { align: 'center' });
-
-      if (organization.branch) {
-        doc.fontSize(13)
-          .font('Helvetica')
-          .fillColor('#E6F3FF')
-          .text(organization.branch, { align: 'center' });
+      let logoBuffer = null;
+      if (organization.logo) {
+        try {
+          const res = await fetch(organization.logo);
+          if (res.ok) {
+            const arrBuffer = await res.arrayBuffer();
+            logoBuffer = Buffer.from(arrBuffer);
+          }
+        } catch (e) {
+          console.warn('[PDF] Failed to fetch organization logo buffer:', e.message);
+        }
       }
 
-      doc.moveDown(4);
+      // Background decorative top banner
+      const bannerHeight = 150;
+      doc.rect(0, 0, doc.page.width, bannerHeight).fill('#2C3925');
+
+      let currentY = 18;
+
+      // 1. Logo at the very top (if available)
+      if (logoBuffer) {
+        try {
+          doc.image(logoBuffer, (doc.page.width - 60) / 2, currentY, { fit: [60, 42], align: 'center' });
+          currentY += 46;
+        } catch (e) {
+          currentY += 10;
+        }
+      } else {
+        currentY += 15;
+      }
+
+      // 2. Organization Name
+      doc.fillColor('#FFFFFF')
+        .fontSize(22)
+        .font('Helvetica-Bold')
+        .text(organization.displayTitle || organization.name, 40, currentY, { align: 'center' });
+
+      currentY += 25;
+
+      // 3. Location / Branch / Address
+      const locationText = [organization.branch, organization.address].filter(Boolean).join('  •  ');
+      if (locationText) {
+        doc.fontSize(11)
+          .font('Helvetica')
+          .fillColor('#E6F3FF')
+          .text(locationText, 40, currentY, { align: 'center' });
+      }
 
       // Card Container
-      const cardY = 170;
+      const cardY = 175;
       doc.roundedRect(60, cardY, doc.page.width - 120, 560, 16)
         .lineWidth(2)
         .strokeColor('#0086FF')
