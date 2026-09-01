@@ -206,73 +206,73 @@ export const generateQrPdfBuffer = async (organization, qrCode, dynamicOrigin = 
         }
       }
 
-      // Background decorative top banner with ample height
-      const bannerHeight = 165;
+      // Background decorative top banner with generous luxury height
+      const bannerHeight = 200;
       doc.rect(0, 0, doc.page.width, bannerHeight).fill('#2C3925');
 
-      let currentY = 16;
+      let currentY = 24;
 
-      // 1. Logo at the very top
+      // 1. Logo at the very top with ample margin
       if (logoBuffer) {
         try {
-          doc.image(logoBuffer, (doc.page.width - 70) / 2, currentY, { fit: [70, 44], align: 'center' });
-          currentY += 50;
+          doc.image(logoBuffer, (doc.page.width - 64) / 2, currentY, { fit: [64, 48], align: 'center' });
+          currentY += 60; // Clean breathing space below logo
         } catch (e) {
-          currentY += 15;
+          currentY += 18;
         }
       } else {
-        currentY += 20;
+        currentY += 24;
       }
 
-      // 2. Organization Name
+      // 2. Organization Name with generous spacing
       doc.fillColor('#FFFFFF')
-        .fontSize(22)
+        .fontSize(23)
         .font('Helvetica-Bold')
         .text(organization.displayTitle || organization.name, 40, currentY, { align: 'center' });
 
-      currentY += 27;
+      currentY += 34; // Generous space between Name and Location
 
       // 3. Location / Branch / Address
       const locationText = [organization.branch, organization.address].filter(Boolean).join('   •   ');
       if (locationText) {
-        doc.fontSize(11)
+        doc.fontSize(12)
           .font('Helvetica')
-          .fillColor('#E0F2FE')
+          .fillColor('#D8ECFD')
           .text(locationText, 40, currentY, { align: 'center' });
       }
 
-      // Card Container with clean spacing below banner
-      const cardY = 185;
-      doc.roundedRect(50, cardY, doc.page.width - 100, 580, 20)
+      // Card Container with clean separation from top banner
+      const cardY = 225;
+      doc.roundedRect(50, cardY, doc.page.width - 100, 540, 20)
         .lineWidth(2)
         .strokeColor('#0086FF')
         .fillAndStroke('#FFFFFF', '#0086FF');
 
       // Header inside card
       doc.fillColor('#2F2E2D')
-        .fontSize(18)
+        .fontSize(17)
         .font('Helvetica-Bold')
-        .text('NALA WADAAG CABASHO AMA TALO', 70, cardY + 28, { align: 'center' });
+        .text('NALA WADAAG CABASHO AMA TALO', 70, cardY + 24, { align: 'center' });
 
       doc.fillColor('#5A5856')
         .fontSize(10.5)
         .font('Helvetica')
-        .text('Scan the QR code below to submit your complaint or suggestion directly.', 70, cardY + 54, { align: 'center' });
+        .text('Scan the QR code below to submit your complaint or suggestion directly.', 70, cardY + 48, { align: 'center' });
 
-      // Embed QR Code
-      const qrY = cardY + 85;
-      doc.image(qrBuffer, (doc.page.width - 240) / 2, qrY, { width: 240 });
+      // Embed QR Code centered
+      const qrY = cardY + 75;
+      doc.image(qrBuffer, (doc.page.width - 230) / 2, qrY, { width: 230 });
 
       // Scan Instructions
       doc.fillColor('#0086FF')
-        .fontSize(13)
+        .fontSize(12.5)
         .font('Helvetica-Bold')
-        .text('TALO & CABASHO', 70, qrY + 258, { align: 'center' });
+        .text('TALO & CABASHO', 70, qrY + 245, { align: 'center' });
 
       doc.fillColor('#2F2E2D')
         .fontSize(10)
         .font('Helvetica')
-        .text('1. Open your phone camera or QR Scanner\n2. Scan this QR Code\n3. Share your feedback instantly & anonymously', 70, qrY + 278, { align: 'center' });
+        .text('1. Open your phone camera or QR Scanner\n2. Scan this QR Code\n3. Share your feedback instantly & anonymously', 70, qrY + 265, { align: 'center' });
 
       // Contact details
       const contactText = [];
@@ -284,7 +284,7 @@ export const generateQrPdfBuffer = async (organization, qrCode, dynamicOrigin = 
         doc.fontSize(9.5)
           .font('Helvetica-Bold')
           .fillColor('#0086FF')
-          .text(contactText.join('   |   '), 70, cardY + 490, { align: 'center' });
+          .text(contactText.join('   |   '), 70, cardY + 465, { align: 'center' });
       }
 
       // Footer
