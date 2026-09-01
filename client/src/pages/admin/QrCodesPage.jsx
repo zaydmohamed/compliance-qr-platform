@@ -273,39 +273,43 @@ export const QrCodesPage = () => {
         {previewOrg && (
           <div className="space-y-5">
             {/* Poster Card */}
-            <div className="border-2 border-[#2C3925] rounded-2xl p-6 bg-white text-center space-y-3.5 shadow-sm max-w-sm mx-auto">
+            <div className="border-2 border-[#2C3925] rounded-3xl p-6 sm:p-7 bg-white text-center space-y-4 shadow-sm max-w-sm mx-auto">
               {/* 1. Logo at the very top */}
-              {previewOrg.logo ? (
-                <img
-                  src={previewOrg.logo}
-                  alt={previewOrg.name}
-                  className="h-14 max-w-[140px] mx-auto object-contain p-1 rounded-xl bg-slate-50 border border-slate-200 shadow-xs"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-xl bg-[#2C3925] text-white flex items-center justify-center font-extrabold text-lg mx-auto shadow-sm">
-                  {(previewOrg.displayTitle || previewOrg.name)?.charAt(0)}
-                </div>
-              )}
+              <div className="pt-1">
+                {previewOrg.logo ? (
+                  <img
+                    src={previewOrg.logo}
+                    alt={previewOrg.name}
+                    className="h-16 max-w-[160px] mx-auto object-contain p-1.5 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-2xl bg-[#2C3925] text-white flex items-center justify-center font-extrabold text-xl mx-auto shadow-sm">
+                    {(previewOrg.displayTitle || previewOrg.name)?.charAt(0)}
+                  </div>
+                )}
+              </div>
 
               {/* 2. Organization Name */}
-              <div>
-                <h3 className="text-base font-extrabold text-[#2C3925] uppercase tracking-tight">
+              <div className="space-y-1 px-2">
+                <h3 className="text-base sm:text-lg font-extrabold text-[#2C3925] uppercase tracking-tight">
                   {previewOrg.displayTitle || previewOrg.name}
                 </h3>
 
                 {/* 3. Location / Branch / Address */}
                 {(previewOrg.branch || previewOrg.address) && (
-                  <p className="text-xs font-semibold text-[#0086FF] mt-0.5">
-                    {[previewOrg.branch, previewOrg.address].filter(Boolean).join(' • ')}
+                  <p className="text-xs font-semibold text-[#0086FF]">
+                    {[previewOrg.branch, previewOrg.address].filter(Boolean).join('  •  ')}
                   </p>
                 )}
               </div>
 
-              <p className="text-[11px] font-bold text-[#5A5856] uppercase tracking-wider">
-                CABASHO & TALO — COMPLAINT & FEEDBACK
-              </p>
+              <div className="pt-1 pb-0.5">
+                <span className="inline-block px-3 py-1 rounded-full bg-slate-100 text-[11px] font-bold text-[#5A5856] uppercase tracking-wider">
+                  CABASHO & TALO — COMPLAINT & FEEDBACK
+                </span>
+              </div>
 
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl inline-block shadow-inner">
+              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl inline-block shadow-inner">
                 {previewData?.dataUrl ? (
                   <img
                     src={previewData.dataUrl}
@@ -319,12 +323,14 @@ export const QrCodesPage = () => {
                 )}
               </div>
 
-              <div className="text-xs font-extrabold text-[#2C3925]">
-                KUSKANKEE QR-KA
+              <div className="space-y-1">
+                <div className="text-xs font-extrabold text-[#2C3925] uppercase tracking-wide">
+                  KUSKANKEE QR-KA
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed px-2">
+                  Scan with phone camera to send anonymous feedback directly to administration.
+                </p>
               </div>
-              <p className="text-[11px] text-slate-500">
-                Scan with phone camera to send anonymous feedback directly to administration.
-              </p>
             </div>
 
             {/* Action buttons */}

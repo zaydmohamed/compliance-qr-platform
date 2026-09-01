@@ -55,35 +55,44 @@ export const QRLandingPage = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Organization Header Card */}
-      <div className="bg-white rounded-3xl p-6 shadow-card border border-slate-100 text-center space-y-3">
-        {organization.logo ? (
-          <img
-            src={organization.logo}
-            alt={organization.name}
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-            className="w-20 h-20 object-contain mx-auto rounded-2xl p-1 bg-slate-50 border border-slate-200 shadow-sm"
-          />
-        ) : (
-          <div className="w-16 h-16 rounded-2xl bg-[#2C3925] text-white flex items-center justify-center mx-auto font-extrabold text-2xl shadow-md">
-            {organization.name.charAt(0)}
-          </div>
-        )}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-card border border-slate-100 text-center space-y-4">
+        {/* 1. Logo at Top with dedicated spacing */}
+        <div className="pb-1">
+          {organization.logo ? (
+            <img
+              src={organization.logo}
+              alt={organization.name}
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              className="w-24 h-24 object-contain mx-auto rounded-2xl p-1.5 bg-slate-50 border border-slate-200 shadow-sm"
+            />
+          ) : (
+            <div className="w-18 h-18 rounded-2xl bg-[#2C3925] text-white flex items-center justify-center mx-auto font-extrabold text-2xl shadow-md p-4">
+              {organization.name?.charAt(0) || 'O'}
+            </div>
+          )}
+        </div>
 
-        <div>
-          <h2 className="text-xl font-extrabold text-[#2F2E2D] tracking-tight">
+        {/* 2. Organization Name */}
+        <div className="space-y-1.5 px-2">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-[#2F2E2D] tracking-tight">
             {organization.displayTitle || organization.name}
           </h2>
+
+          {/* 3. Location / Branch / Address */}
           {(organization.branch || organization.address) && (
-            <p className="text-xs font-semibold text-[#0086FF] mt-0.5">
-              {[organization.branch, organization.address].filter(Boolean).join(' • ')}
+            <p className="text-xs sm:text-sm font-semibold text-[#0086FF]">
+              {[organization.branch, organization.address].filter(Boolean).join('  •  ')}
             </p>
           )}
         </div>
 
+        {/* Official Phone Pill */}
         {organization.phone && (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-medium">
-            <Phone className="w-3 h-3 text-[#2C3925]" />
-            <span>{organization.phone}</span>
+          <div className="pt-1">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
+              <Phone className="w-3.5 h-3.5 text-[#2C3925]" />
+              <span>{organization.phone}</span>
+            </div>
           </div>
         )}
       </div>

@@ -68,33 +68,35 @@ export const OrgQrPage = () => {
             <div className="absolute top-0 left-0 right-0 h-2 bg-[#2C3925]" />
 
             {/* 1. Logo at the very top */}
-            {organization?.logo ? (
-              <img
-                src={organization.logo}
-                alt={organization.name}
-                className="h-14 max-w-[140px] mx-auto object-contain p-1 rounded-xl bg-slate-50 border border-slate-200 shadow-xs"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-xl bg-[#2C3925] text-white flex items-center justify-center font-extrabold text-lg mx-auto shadow-sm">
-                {(organization?.displayTitle || organization?.name)?.charAt(0)}
-              </div>
-            )}
+            <div className="pt-2">
+              {organization?.logo ? (
+                <img
+                  src={organization.logo}
+                  alt={organization.name}
+                  className="h-16 max-w-[160px] mx-auto object-contain p-1.5 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-2xl bg-[#2C3925] text-white flex items-center justify-center font-extrabold text-xl mx-auto shadow-sm">
+                  {(organization?.displayTitle || organization?.name)?.charAt(0)}
+                </div>
+              )}
+            </div>
 
             {/* 2. Organization Name */}
-            <div>
-              <h3 className="text-base font-extrabold text-[#2C3925] uppercase tracking-tight">
+            <div className="space-y-1 px-2">
+              <h3 className="text-base sm:text-lg font-extrabold text-[#2C3925] uppercase tracking-tight">
                 {organization?.displayTitle || organization?.name}
               </h3>
 
               {/* 3. Location / Branch / Address */}
               {(organization?.branch || organization?.address) && (
-                <p className="text-xs font-semibold text-[#0086FF] mt-0.5">
-                  {[organization.branch, organization.address].filter(Boolean).join(' • ')}
+                <p className="text-xs font-semibold text-[#0086FF]">
+                  {[organization.branch, organization.address].filter(Boolean).join('  •  ')}
                 </p>
               )}
             </div>
 
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 pt-1">
               <p className="text-[11px] font-extrabold text-[#5A5856] uppercase tracking-wider">
                 CABASHO & TALO
               </p>
